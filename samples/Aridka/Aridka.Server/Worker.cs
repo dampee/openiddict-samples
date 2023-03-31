@@ -21,11 +21,11 @@ public class Worker : IHostedService
         await using var scope = _serviceProvider.CreateAsyncScope();
 
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        await context.Database.EnsureCreatedAsync();
+        await context.Database.EnsureCreatedAsync(cancellationToken);
 
         var manager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
 
-        if (await manager.FindByClientIdAsync("console") == null)
+        if (await manager.FindByClientIdAsync("console", cancellationToken) == null)
         {
             await manager.CreateAsync(new OpenIddictApplicationDescriptor
             {
@@ -37,7 +37,7 @@ public class Worker : IHostedService
                     Permissions.Endpoints.Token,
                     Permissions.GrantTypes.ClientCredentials
                 }
-            });
+            }, cancellationToken);
         }
     }
 
